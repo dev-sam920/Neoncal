@@ -1,0 +1,6 @@
+{
+  "name": "NeonCalc Pro",
+  "description": "A minimalist, high-precision calculator with a neon glassmorphism aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["Calculator", "Unit Conversion"]
+}
