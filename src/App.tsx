@@ -134,6 +134,16 @@ const PaymentModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean, onClose
     expiry: '',
     cvc: ''
   });
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePay = () => {
+    if (!formData.name.trim() || !formData.card.trim() || !formData.expiry.trim() || !formData.cvc.trim()) {
+      setError('Please fill in all payment fields');
+      return;
+    }
+    setError(null);
+    onConfirm();
+  };
 
   return (
     <AnimatePresence>
@@ -172,6 +182,8 @@ const PaymentModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean, onClose
                 <input 
                   type="text" 
                   placeholder="Enter your name"
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   className="w-full bg-surface-container-highest/50 border border-white/5 rounded-xl px-5 py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/50 transition-colors font-medium"
                 />
               </div>
@@ -182,6 +194,8 @@ const PaymentModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean, onClose
                   <input 
                     type="text" 
                     placeholder="•••• •••• •••• ••••"
+                    value={formData.card}
+                    onChange={(e) => setFormData(prev => ({ ...prev, card: e.target.value }))}
                     className="w-full bg-surface-container-highest/50 border border-white/5 rounded-xl px-5 py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/50 transition-colors font-medium"
                   />
                   <div className="absolute right-5 top-1/2 -translate-y-1/2 text-on-surface-variant/40">
@@ -196,6 +210,8 @@ const PaymentModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean, onClose
                   <input 
                     type="text" 
                     placeholder="MM/YY"
+                    value={formData.expiry}
+                    onChange={(e) => setFormData(prev => ({ ...prev, expiry: e.target.value }))}
                     className="w-full bg-surface-container-highest/50 border border-white/5 rounded-xl px-5 py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/50 transition-colors font-medium text-center"
                   />
                 </div>
@@ -204,15 +220,27 @@ const PaymentModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean, onClose
                   <input 
                     type="text" 
                     placeholder="•••"
+                    value={formData.cvc}
+                    onChange={(e) => setFormData(prev => ({ ...prev, cvc: e.target.value }))}
                     className="w-full bg-surface-container-highest/50 border border-white/5 rounded-xl px-5 py-4 text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/50 transition-colors font-medium text-center"
                   />
                 </div>
               </div>
             </div>
 
+            {error && (
+              <motion.p 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 text-red-500 text-xs font-bold text-center uppercase tracking-widest"
+              >
+                {error}
+              </motion.p>
+            )}
+
             <div className="mt-10 space-y-4">
               <button 
-                onClick={onConfirm}
+                onClick={handlePay}
                 className="w-full py-4 bg-primary text-on-primary font-black rounded-2xl shadow-[0_0_25px_rgba(34,211,238,0.4)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 text-lg"
               >
                 Pay $10 Securely
