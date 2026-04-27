@@ -412,6 +412,7 @@ export default function App() {
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+  const [pendingResult, setPendingResult] = useState<string | null>(null);
 
   const handleNumber = (n: string) => {
     setCalc(prev => ({
@@ -437,10 +438,6 @@ export default function App() {
   };
 
   const handleEquals = () => {
-    // The sequence starts here: First the Ad, then the Premium popup
-    setIsAdModalOpen(true);
-    
-    // Logic below handles background state update
     if (calc.prevValue === null || !calc.operation) return;
     
     const current = parseFloat(calc.display);
@@ -450,19 +447,40 @@ export default function App() {
       case '+': result = calc.prevValue + current; break;
       case '-': result = calc.prevValue - current; break;
       case '×': result = calc.prevValue * current; break;
-      case '÷': result = calc.prevValue / current; break;
+      case '÷': result = current !== 0 ? calc.prevValue / current : 0; break;
     }
 
-    setCalc({
-      display: result.toLocaleString(undefined, { maximumFractionDigits: 4 }),
-      history: `${calc.prevValue} ${calc.operation} ${current}`,
+    const resultStr = result.toLocaleString(undefined, { maximumFractionDigits: 4 });
+    setPendingResult(resultStr);
+
+    // The sequence starts here: First the Ad, then the Premium popup
+    setIsAdModalOpen(true);
+    
+    // We update the history and hide the result with a placeholder
+    setCalc(prev => ({
+      ...prev,
+      display: '??',
+      history: `${prev.prevValue} ${prev.operation} ${prev.display} =`,
+      newInput: true
+    }));
+  };
+
+  const revealResult = () => {
+    if (!pendingResult) return;
+    
+    setCalc(prev => ({
+      ...prev,
+      display: pendingResult,
       operation: null,
       prevValue: null,
       newInput: true
-    });
+    }));
+    
+    setPendingResult(null);
   };
 
   const handleClear = () => {
+    setPendingResult(null);
     setCalc({
       display: '0',
       history: '',
@@ -599,7 +617,7 @@ export default function App() {
         onClose={() => setIsPaymentModalOpen(false)}
         onConfirm={() => {
           setIsPaymentModalOpen(false);
-          // Success logic could go here
+          revealResult();
         }}
       />
       
